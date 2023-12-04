@@ -7,95 +7,123 @@ use Migrations\Utilities\Column;
 abstract class Migration
 {
     /**
-     * @var \Migrations\Utilities\Query[]
+     * @var \Migrations\Utilities\Instruction[]
      */
-    public array $queries = [];
+    public array $instructions = [];
+
     public abstract function up(Schema $schema);
     public abstract function down(Schema $schema);
 
-    public function createQuery(Schema $schema)
+    public function createInstructions(Schema $schema)
     {
         $tables = $schema->getTables();
 
         foreach ($tables as $table) {
-            $query = new Query();
-            $columns = $table->columns;
+            $instruction = new Instruction($table->name);
 
-            foreach ($columns as $column) {
-                switch ($column->type) {
-                    case ColumnType::$smallint:
-                    case ColumnType::$int:
-                    case ColumnType::$bigint:
-                        $this->integerNumeric($column, $query);
-                        break;
-
-                    case ColumnType::$char:
-                    case ColumnType::$varchar:
-                        $this->textVariableLength($column, $query);
-                        break;
-
-                    case ColumnType::$decimal:
-                        $query->setInstruction(
-                            $this->getNameAndType($column) .
-                                "(" . $column->precision . "," . $column->scale . ")" . $this->getDefaultOrNullable($column)
-                        );
-                        break;
-
-                    default:
-                        $this->defaultDataType($column, $query);
-                        break;
-                }
-
-                $this->setConstraint($column, $query);
+            switch ($table->status) {
+                case Table::ADD:
+                    $this->createTables($table, $instruction);
+                    break;
+                
+                default:
+                    # code...
+                    break;
             }
-            array_push($this->queries, $query);
+            
+            array_push($this->instructions, $instruction);
+        }
+        return $this;
+    }
+
+    public function getQueries()
+    {
+        $queries = [];
+        foreach ($this->instructions as $instruction) {
+            $query = "CREATE TABLE " . $instruction->tableName . "(";
+            $query .= implode(",", $instruction->instructions) . ($instruction->constraints == [] ? "" : ",");
+            $query .= implode(",", $instruction->constraints);
+            $query .= ");";
+            array_push($queries, $query);
+        }
+
+        return $queries;
+    }
+
+    private function createTables(Table $table, Instruction $instruction){
+        foreach ($table->columns as $column) {
+            switch ($column->type) {
+                case ColumnType::$smallint:
+                case ColumnType::$int:
+                case ColumnType::$bigint:
+                    $this->integerNumeric($column, $instruction);
+                    break;
+
+                case ColumnType::$char:
+                case ColumnType::$varchar:
+                    $this->textVariableLength($column, $instruction);
+                    break;
+
+                case ColumnType::$decimal:
+                    $instruction->set(
+                        $this->getNameAndType($column) .
+                            "(" . $column->precision . "," . $column->scale . ")" . $this->getDefaultOrNullable($column)
+                    );
+                    break;
+
+                default:
+                    $this->defaultDataType($column, $instruction);
+                    break;
+            }
+
+            $this->setConstraint($column, $instruction);
         }
     }
 
-    private function defaultDataType(Column $column, Query $query)
+    private function defaultDataType(Column $column, Instruction $instruction)
     {
-        $query->setInstruction($this->getNameAndType($column) . $this->getDefaultOrNullable($column));
+        $instruction->set($this->getNameAndType($column) . $this->getDefaultOrNullable($column));
     }
 
-    private function integerNumeric(Column $column, Query $query)
+    private function integerNumeric(Column $column, Instruction $instruction)
     {
         if ($column->autoIncrement) {
             switch ($column->type) {
                 case ColumnType::$smallint:
-                    $query->setInstruction($column->name . " SMALLSERIAL");
+                    $instruction->set($column->name . " SMALLSERIAL");
                     break;
 
                 case ColumnType::$int:
-                    $query->setInstruction($column->name . " SERIAL");
+                    $instruction->set($column->name . " SERIAL");
                     break;
 
                 case ColumnType::$bigint:
-                    $query->setInstruction($column->name . " BIGSERIAL");
+                    $instruction->set($column->name . " BIGSERIAL");
                     break;
             }
         } else {
-            $query->setInstruction($this->getNameAndType($column) . $this->getDefaultOrNullable($column));
+            $instruction->set($this->getNameAndType($column) . $this->getDefaultOrNullable($column));
         }
     }
 
-    private function textVariableLength(Column $column, Query $query)
+    private function textVariableLength(Column $column, Instruction $instruction)
     {
         $lengthParameter = "";
         if ($column->length != null) {
             $lengthParameter = "(" . $column->length . ")";
         }
 
-        $query->setInstruction($this->getNameAndType($column) . $lengthParameter . $this->getDefaultOrNullable($column));
+        $instruction->set($this->getNameAndType($column) . $lengthParameter . $this->getDefaultOrNullable($column));
     }
 
-    private function setConstraint(Column $column, Query $query)
+    private function setConstraint(Column $column, Instruction $instruction)
     {
         if ($column->primaryKeyConstraint != null) {
-            $query->setConstraint("CONSTRAINT " . $column->primaryKeyConstraint . " PRIMARY KEY(" . $column->name . ")");
+            $instruction->setConstraint("CONSTRAINT " . $column->primaryKeyConstraint . " PRIMARY KEY(" . $column->name . ")");
         }
 
         if ($column->foreignKeyConstraint != null) {
-            $query->setConstraint(
+            $instruction->setConstraint(
                 "CONSTRAINT " . $column->foreignKeyConstraint .
                     " FOREIGN KEY(" . $column->name . ")" .
                     " REFERENCES " . $column->foreignKeyTableReference . "(" . $column->foreignKeyColumnReference . ")" .

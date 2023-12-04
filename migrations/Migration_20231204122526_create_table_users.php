@@ -1,0 +1,26 @@
+<?php
+
+namespace Migrations;
+
+use Migrations\Utilities\Schema;
+use Migrations\Utilities\Migration;
+use Migrations\Utilities\TableCreateInterface;
+
+class Migration_20231204122526_create_table_users extends Migration
+{
+
+    public function up(Schema $schema)
+    {
+        $schema->createTable("users", function (TableCreateInterface $table) {
+            $table->addColumn("id")->int()->autoIncrement()->primaryKey();
+            $table->addColumn("username")->varchar(128)->nullable(false);
+            $table->addColumn("password")->varchar(128)->nullable(false);
+            $table->addColumn("email")->varchar(128)->nullable(false);
+        });
+    }
+
+    public function down(Schema $schema)
+    {
+        
+    }
+}

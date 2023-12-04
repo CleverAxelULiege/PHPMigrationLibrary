@@ -4,7 +4,7 @@ namespace Migrations\Utilities;
 
 use Migrations\Utilities\ColumnType;
 
-class Column implements ColumnCreateInterface
+class Column implements ColumnUpdateInterface
 {
     public string $type;
     public ?int $length = null;
@@ -165,5 +165,15 @@ class Column implements ColumnCreateInterface
     {
         $this->withTimeZone = true;
         return $this;
+    }
+
+    public function drop()
+    {
+        
+    }
+
+    public function update()
+    {
+        
     }
 }

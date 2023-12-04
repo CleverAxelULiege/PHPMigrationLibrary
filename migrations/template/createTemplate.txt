@@ -1,0 +1,23 @@
+<?php
+
+namespace Migrations;
+
+use Migrations\Utilities\Schema;
+use Migrations\Utilities\Migration;
+use Migrations\Utilities\TableCreateInterface;
+
+class :PLACE_HOLDER extends Migration
+{
+
+    public function up(Schema $schema)
+    {
+        $schema->createTable("my_table", function (TableCreateInterface $table) {
+
+        });
+    }
+
+    public function down(Schema $schema)
+    {
+        
+    }
+}

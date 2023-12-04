@@ -2,11 +2,15 @@
 
 namespace Migrations\Utilities;
 
-class Query
+class Instruction
 {
     public array $instructions = [];
     public array $constraints = [];
-    public function setInstruction(string $instruction)
+    public function __construct(public string $tableName)
+    {
+        
+    }
+    public function set(string $instruction)
     {
         array_push($this->instructions, $instruction);
     }
