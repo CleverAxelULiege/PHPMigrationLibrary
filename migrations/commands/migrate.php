@@ -108,11 +108,11 @@ class MigrationOperation
                 break;
             }
         }
-
-        if (!$newMigrationExists) {
-            colorLog("\n\n\n------No new migration added.------");
-            die();
-        }
+        return $newMigrationExists;
+        // if (!$newMigrationExists) {
+        //     colorLog("\n\n\n------No new migration added ¯\\_(ツ)_/¯------");
+        //     die();
+        // }
     }
 
     private static function retrieveClassnameFromFile(string $file)
@@ -188,6 +188,7 @@ class MigrationOperation
 
 function colorLog($str, $type = 'i')
 {
+    clearLog();
     switch ($type) {
         case 'e': //error
             echo "\033[31m$str \033[0m\n";
@@ -204,6 +205,12 @@ function colorLog($str, $type = 'i')
     }
 }
 
+function clearLog(){
+    for($i = 0; $i < 50; $i++){
+        echo "\n\r";
+    }
+}
+
 MigrationOperation::setMigrationsDone();
 MigrationOperation::setMigrationsFiles();
 MigrationOperation::requireAllMigrations();
@@ -213,20 +220,26 @@ $db = new Database();
 $db->beginTransaction();
 try {
     if ($migrationOperation == null) {
-        MigrationOperation::testForNewMigrations();
+        
+        if(MigrationOperation::testForNewMigrations() == false){
+            colorLog("----------No new migration added ¯\\_(ツ)_/¯----------");
+            die();
+        }
+
         MigrationOperation::migrate($db);
-        colorLog("\n\n\n----------Migration successfull.----------", "s");
+        colorLog("\n\n\n----------Migration successfull \\^o^/ ----------", "s");
     } else if ($migrationOperation == "--reset") {
+
         if (MigrationOperation::$MIGRATIONS_DONE == []) {
-            colorLog("\n\n\n----------Nothing to rollback.----------");
+            colorLog("\n\n\n----------Nothing to rollback ¯\\_(ツ)_/¯----------");
             die();
         }
         MigrationOperation::rollbackAll($db);
-        colorLog("\n\n\n----------Reset successfull.----------", "s");
+        colorLog("\n\n\n----------Reset successfull \\^o^/ ----------", "s");
     }
     $db->commitTransaction();
 } catch (Exception $e) {
-    colorLog("\n\n\n----------An error occured rolling back transaction.----------", "e");
+    colorLog("\n\n\n----------An error occured rolling back transaction (っ °Д °;)っ----------", "e");
     // echo "\n\n---------------AN ERROR OCCURED ROLLING BACK TRANSACTION---------------\n\n";
     colorLog($e->getMessage(), "w");
     $db->rollbackTransaction();
