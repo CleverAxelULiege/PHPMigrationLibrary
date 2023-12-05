@@ -19,11 +19,11 @@ class Migration_20231204122526_create_table_users extends Migration
             $table->addColumn("email")->varchar(128)->nullable();
         });
 
-        $schema->modifyTable("users", function (TableUpdateInterface $table) {
+        $schema->updateTable("users", function (TableUpdateInterface $table) {
             $table->updateColumn("username")->varchar(256);
             $table->addColumn("decimal_test")->decimal(10, 10)->nullable(true)->default("null");
         });
-        $schema->modifyTable("users", function (TableUpdateInterface $table) {
+        $schema->updateTable("users", function (TableUpdateInterface $table) {
             $table->updateColumn("decimal_test")->varchar(256);
         });
 

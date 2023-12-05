@@ -16,7 +16,7 @@ class Schema
         $callback($table);
     }
 
-    public function modifyTable(string $name, callable $callback)
+    public function updateTable(string $name, callable $callback)
     {
         $table = new Table($name, Table::UPDATE);
         array_push($this->tables, $table);
