@@ -6,12 +6,12 @@ use Migrations\Utilities\Schema;
 use Migrations\Utilities\Migration;
 use Migrations\Utilities\TableUpdateInterface;
 
-class :PLACE_HOLDER extends Migration
+class :PLACE_HOLDER_CLASS extends Migration
 {
 
     public function up(Schema $schema)
     {
-        $schema->updateTable("my_table", function (TableUpdateInterface $table) {
+        $schema->updateTable(":PLACE_HOLDER_TABLE", function (TableUpdateInterface $table) {
             
         });
 
@@ -20,6 +20,6 @@ class :PLACE_HOLDER extends Migration
 
     public function down(Schema $schema)
     {
-
+        
     }
 }

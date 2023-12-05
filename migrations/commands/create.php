@@ -6,9 +6,14 @@ define("UPDATE_TEMPLATE", 2);
 $date = date("YmdHis");
 $migrationName = $argv[1] ?? null;
 
+
 if ($migrationName == null) {
     throw new Exception("No migration name given");
 }
+
+$matches = [];
+$match = preg_match("/.*(table_)(.+)/", $migrationName, $matches);
+
 
 $migrationFile = "Migration_" . $date . "_" . $migrationName;
 
@@ -25,8 +30,13 @@ try {
             $fileContent = file_get_contents(__DIR__ . "/../template/normalTemplate.txt");
         break;
     }
-
-    fwrite($fstream, str_replace(":PLACE_HOLDER", $migrationFile, $fileContent));
+    $fileContent = str_replace(":PLACE_HOLDER_CLASS", $migrationFile, $fileContent);
+    if($match != 0){
+        $fileContent = str_replace(":PLACE_HOLDER_TABLE", $matches[2], $fileContent);
+    } else {
+        $fileContent = str_replace(":PLACE_HOLDER_TABLE", "my_table", $fileContent);
+    }
+    fwrite($fstream, $fileContent);
 } finally {
     fclose($fstream);
 }
