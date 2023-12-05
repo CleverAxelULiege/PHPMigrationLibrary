@@ -1,21 +1,25 @@
 <?php
 
-namespace Migrations\Utilities;
+namespace Migrations\Utilities\Column;
 
 use Migrations\Utilities\ColumnType;
 
-class Column implements ColumnUpdateInterface
-{
-    public string $type;
+class ColumnBase implements ColumnBaseInterface{
+    const PK_PREFIX = "pk_";
+    const FK_PREFIX = "fk_";
+    public ?string $type = null;
     public ?int $length = null;
     public ?int $precision = null;
     public ?int $scale = null;
 
-    public bool $nullable = false;
+    public ?bool $nullable = null;
     public bool $autoIncrement = false;
     public bool $cascadeOnDelete = false;
     public bool $cascadeOnUpdate = false;
     public bool $withTimeZone = false;
+    public bool $dropColumn = false;
+    public bool $dropPk = false;
+    public bool $dropFk = false;
 
     public ?string $primaryKeyConstraint = null;
     public ?string $foreignKeyConstraint = null;
@@ -117,63 +121,9 @@ class Column implements ColumnUpdateInterface
         return $this;
     }
 
-    public function primaryKey(?string $constraint = null)
-    {
-        if($constraint == null){
-            $this->primaryKeyConstraint = "pk_" . $this->name;
-        }
-        return $this;
-    }
-
-    public function autoIncrement()
-    {
-        $this->autoIncrement = true;
-        return $this;
-    }
-
-    public function foreignKey(string $reference, string $column, ?string $constraint = null)
-    {
-        $this->foreignKeyTableReference = $reference;
-        $this->foreignKeyColumnReference = $column;
-
-        if($constraint == null){
-            $this->foreignKeyConstraint = "fk_" . $this->name;
-        }
-
-        return $this;
-    }
-
     public function default(string $default)
     {
         $this->default = $default;
         return $this;
-    }
-
-    public function onCascadeDelete()
-    {
-        $this->cascadeOnDelete = true;
-        return $this;
-    }
-
-    public function onCascadeUpdate()
-    {
-        $this->cascadeOnUpdate = true;
-        return $this;
-    }
-
-    public function withTimeZone()
-    {
-        $this->withTimeZone = true;
-        return $this;
-    }
-
-    public function drop()
-    {
-        
-    }
-
-    public function update()
-    {
-        
     }
 }

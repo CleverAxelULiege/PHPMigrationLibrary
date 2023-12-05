@@ -2,37 +2,43 @@
 
 namespace Migrations\Utilities;
 
-use Migrations\Utilities\TableCreateInterface;
+use Migrations\Utilities\Column\ColumnCreate;
+use Migrations\Utilities\Column\ColumnUpdate;
+use Migrations\Utilities\Column\ColumnCreateInterface;
+use Migrations\Utilities\Column\ColumnUpdateInterface;
 
 class Table implements TableUpdateInterface{
 
     
 
     /**
-     * @var \Migrations\Utilities\Column[]
+     * @var \Migrations\Utilities\Column\ColumnBase[]
      */
     public array $columns = [];
     const ADD = 0;
     const UPDATE = 1;
     const DELETE = 2;
-    public function __construct(public string $name, public string $status)
+    public function __construct(public string $name, public int $operation)
     {
         
     }
 
     public function addColumn(string $name): ColumnCreateInterface
     {
-        $column = new Column($name);
+        $column = new ColumnCreate($name);
         array_push($this->columns, $column);
-        // var_dump($this->columns);
         return $column;
     }
 
     public function updateColumn(string $name): ColumnUpdateInterface
     {
-        $column = new Column($name);
+        $column = new ColumnUpdate($name);
         array_push($this->columns, $column);
-        // var_dump($this->columns);
         return $column;
+    }
+
+    public function dropColumn(string $name): void
+    {
+        
     }
 }

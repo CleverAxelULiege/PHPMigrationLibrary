@@ -6,10 +6,16 @@ class Instruction
 {
     public array $instructions = [];
     public array $constraints = [];
+    public int $operation = -1;
     public function __construct(public string $tableName)
     {
         
     }
+
+    public function setOperation(int $operation){
+        $this->operation = $operation;
+    }
+
     public function set(string $instruction)
     {
         array_push($this->instructions, $instruction);

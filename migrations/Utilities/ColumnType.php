@@ -9,6 +9,9 @@ class ColumnType{
     public static string $text = "TEXT";
     public static string $smallint = "SMALLINT";
     public static string $int = "INT";
+    public static string $smallSerial = "SMALLSERIAL";
+    public static string $serial = "SERIAL";
+    public static string $bigSerial = "bigSerial";
     public static string $bigint = "BIGINT";
     public static string $float = "REAL";
     public static string $double = "DOUBLE PRECISION";

@@ -2,7 +2,7 @@
 
 namespace Migrations\Utilities;
 
-use Migrations\Utilities\ColumnCreateInterface;
+use Migrations\Utilities\Column\ColumnUpdateInterface;
 
 interface TableUpdateInterface extends TableCreateInterface
 {
