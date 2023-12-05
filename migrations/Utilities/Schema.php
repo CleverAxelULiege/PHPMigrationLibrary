@@ -23,6 +23,11 @@ class Schema
         $callback($table);
     }
 
+    public function dropTable(string $name){
+        $table = new Table($name, Table::DELETE);
+        array_push($this->tables, $table);
+    }
+
     public function getTables()
     {
         return $this->tables;

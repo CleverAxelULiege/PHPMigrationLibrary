@@ -33,6 +33,9 @@ abstract class Migration
                     $instruction->setOperation(Table::UPDATE);
                     $this->updateTable($table, $instruction);
                     break;
+                case Table::DELETE:
+                    $instruction->setOperation(Table::DELETE);
+                    $instruction->set("DROP TABLE " . $table->name . ";");
                 default:
                     # code...
                     break;
@@ -54,18 +57,20 @@ abstract class Migration
                     $query .= implode(", ", $instruction->instructions) . ($instruction->constraints == [] ? "" : ", ");
                     $query .= implode(", ", $instruction->constraints);
                     $query .= ");";
-                    array_push($queries, $query);
                     break;
                 case Table::UPDATE:
                     $query = "ALTER TABLE " . $instruction->tableName . " ";
                     $query .= implode(", ", $instruction->instructions) . ($instruction->constraints == [] ? "" : ", ");
                     $query .= implode(", ", $instruction->constraints) . ";";
-                    array_push($queries, $query);
                     break;
+                    case Table::DELETE:
+                        $query = $instruction->instructions[0];
+                        break;
                 default:
                     var_dump("DEFAULT GET QUERIES");
                     break;
             }
+            array_push($queries, $query);
         }
 
         return $queries;

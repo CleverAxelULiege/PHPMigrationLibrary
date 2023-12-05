@@ -6,13 +6,13 @@ use Migrations\Utilities\Schema;
 use Migrations\Utilities\Migration;
 use Migrations\Utilities\TableUpdateInterface;
 
-class :PLACE_HOLDER extends Migration
+class Migration_20231205142219_update_table_books extends Migration
 {
 
     public function up(Schema $schema)
     {
-        $schema->updateTable("my_table", function (TableUpdateInterface $table) {
-            
+        $schema->updateTable("books", function (TableUpdateInterface $table) {
+            $table->addColumn("author")->varchar(256)->nullable(false);
         });
 
         

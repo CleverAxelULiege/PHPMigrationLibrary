@@ -36,9 +36,4 @@ class Table implements TableUpdateInterface{
         array_push($this->columns, $column);
         return $column;
     }
-
-    public function dropColumn(string $name): void
-    {
-        
-    }
 }

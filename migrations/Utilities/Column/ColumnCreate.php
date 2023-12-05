@@ -37,10 +37,12 @@ class ColumnCreate extends ColumnBase implements ColumnCreateInterface{
     public function onDeleteCascade()
     {
         $this->cascadeOnDelete = true;
+        return $this;
     }
 
     public function onUpdateCascade()
     {
         $this->cascadeOnUpdate = true;
+        return $this;
     }
 }
