@@ -20,6 +20,8 @@ class Migration_20231205142219_update_table_books extends Migration
 
     public function down(Schema $schema)
     {
-
+        $schema->updateTable("books", function (TableUpdateInterface $table) {
+            $table->updateColumn("author")->drop();
+        });
     }
 }
