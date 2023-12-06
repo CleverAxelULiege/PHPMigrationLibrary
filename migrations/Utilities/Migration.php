@@ -63,9 +63,9 @@ abstract class Migration
                     $query .= implode(", ", $instruction->instructions) . ($instruction->constraints == [] ? "" : ", ");
                     $query .= implode(", ", $instruction->constraints) . ";";
                     break;
-                    case Table::DELETE:
-                        $query = $instruction->instructions[0];
-                        break;
+                case Table::DELETE:
+                    $query = $instruction->instructions[0];
+                    break;
                 default:
                     var_dump("DEFAULT GET QUERIES");
                     break;
@@ -81,8 +81,8 @@ abstract class Migration
         foreach ($table->columns as $column) {
 
             if ($column instanceof ColumnUpdateInterface) {
-                
-                if($column->cascadeOnDelete || $column->cascadeOnUpdate){
+
+                if ($column->cascadeOnDelete || $column->cascadeOnUpdate) {
                     throw new Exception("You can't update onDeleteCascade or onUpdateCascade. What you need to do is to drop the constraint then the table and create a
                     column from scratch with your olds properties and your new onDeleteCascade/onUpdateCascade");
                 }
@@ -97,7 +97,6 @@ abstract class Migration
                 if ($column->dropColumn) {
                     $instruction->set("DROP COLUMN " . $column->name);
                 }
-
             } elseif ($column instanceof ColumnCreateInterface) {
                 $addColumn = "ADD COLUMN ";
                 switch ($column->type) {
@@ -113,7 +112,7 @@ abstract class Migration
                         break;
 
                     case ColumnType::$decimal:
-                         $addColumn .= $this->getNameAndType($column) . "(" . $column->precision . "," . $column->scale . ")" . $this->getDefaultOrNullable($column);
+                        $addColumn .= $this->getNameAndType($column) . "(" . $column->precision . "," . $column->scale . ")" . $this->getDefaultOrNullable($column);
                         break;
 
                     default:
@@ -123,10 +122,10 @@ abstract class Migration
 
                 $instruction->set($addColumn);
 
-                if($column->primaryKeyConstraint != null){
+                if ($column->primaryKeyConstraint != null) {
                     $this->addPrimaryConstraint($column, $instruction);
                 }
-                if($column->foreignKeyConstraint != null){
+                if ($column->foreignKeyConstraint != null) {
                     $this->addForeignConstraint($column, $instruction);
                 }
             }
@@ -176,9 +175,9 @@ abstract class Migration
     {
         if ($column->type != null) {
             $typeParameter = "";
-            if($column->type == ColumnType::$decimal){
+            if ($column->type == ColumnType::$decimal) {
                 $typeParameter = "(" . $column->precision . "," . $column->scale . ")";
-            }else if(($column->type == ColumnType::$char || $column->type == ColumnType::$varchar) && $column->length != null){
+            } else if (($column->type == ColumnType::$char || $column->type == ColumnType::$varchar) && $column->length != null) {
                 $typeParameter = "(" . $column->length . ")";
             }
             $instruction->set("ALTER COLUMN " . $column->name . " TYPE " . $column->type . $typeParameter);
