@@ -18,28 +18,30 @@ class MigrationOperation
         $this->requireAllMigrations();
     }
 
-    public function doStep(int $step, string &$type)
+    public function doStep(int $step)
     {
+        $this->clearLog();
         if ($step == 0) {
-            throw new Exception("The step given can not be at 0.");
+            $this->colorLog("The step given can not be at 0, YOU FOOL (╯°□°）╯︵ ┻━┻", "w");
+            return;
         }
 
         if ($step < 0) {
             $step = -$step;
-            if($this->MIGRATIONS_DONE == []){
-                $type = "i";
-                return "----------Nothing to rollback ¯\\_(ツ)_/¯----------";
+            if ($this->MIGRATIONS_DONE == []) {
+                $this->colorLog("----------Nothing to rollback ¯\\_(ツ)_/¯----------", "i");
+                return;
             }
-            $type = "s";
-            return $this->rollback($step);
+            $this->rollback($step);
         } else {
-            return $this->migrate($step, $type);
+            $this->migrate($step);
         }
     }
 
     private function rollback(int $step)
     {
 
+        $this->clearLog();
         if ($step > count($this->MIGRATIONS_DONE)) {
             $step = count($this->MIGRATIONS_DONE);
         }
@@ -61,23 +63,24 @@ class MigrationOperation
             $this->MIGRATIONS_DONE = array_filter($this->MIGRATIONS_DONE, fn ($m) => $m != $this->MIGRATIONS_DONE[$i]);
         }
         $this->updateHistoric();
-        return "----------Successfully rollbacked " . $step . " migration(s) \\^o^/ ----------";
+        $this->colorLog("----------Successfully rollbacked " . $step . " migration(s) \\^o^/ ----------", "s");
     }
 
-    public function migrate(?int $step, string &$type)
+    public function migrate(?int $step)
     {
+        
         $newMigrationsCount = count($this->MIGRATIONS_FILES) - count($this->MIGRATIONS_DONE);
 
         if ($newMigrationsCount == 0) {
-            $type = "i";
-            return "----------No new migration added ¯\\_(ツ)_/¯----------";
+            $this->colorLog("----------No new migration added ¯\\_(ツ)_/¯----------", "i");
+            return;
         }
 
         $i = 0;
 
         foreach ($this->MIGRATIONS_FILES as $migrationFile) {
 
-            if ($step != null && $i >= $step) {       
+            if ($step != null && $i >= $step) {
                 break;
             }
 
@@ -104,28 +107,15 @@ class MigrationOperation
 
         $this->updateHistoric();
         if ($step === null) {
-            $type = "s";
-            return "----------Migration successfull \\^o^/ ----------";
+            $this->clearLog();
+            $this->colorLog("----------Migration successfull \\^o^/ ----------", "s");
+            return;
         }
 
-        $type = "s";
-        return "----------Successfully advanced " . $newMigrationsCount . " migration(s) \\^o^/ ----------";
+        $this->colorLog("----------Successfully advanced " . $step . " migration(s) \\^o^/ ----------", "s");
     }
 
-    public function testForNewMigrations()
-    {
-        $newMigrationExists = false;
-        foreach ($this->MIGRATIONS_FILES as $file) {
-            $migrationFileWithoutExtension =  str_replace(".php", "", $file);
-            $creationDate = (int)substr($migrationFileWithoutExtension, 10, 14);
 
-            if ($newMigrationExists == false && !in_array($creationDate, $this->MIGRATIONS_DONE)) {
-                $newMigrationExists = true;
-                break;
-            }
-        }
-        return $newMigrationExists;
-    }
 
     private function retrieveClassnameFromFile(string $file)
     {
@@ -144,12 +134,14 @@ class MigrationOperation
         return "";
     }
 
-    public function rollbackAll(string &$type)
+    public function rollbackAll()
     {
-        
-        $type = "i";
-        if($this->MIGRATIONS_DONE == [])
-            return "----------Nothing to rollback ¯\\_(ツ)_/¯----------";
+
+        $this->clearLog();
+        if ($this->MIGRATIONS_DONE == []) {
+            $this->colorLog("----------Nothing to rollback ¯\\_(ツ)_/¯----------", "i");
+            return;
+        }
 
         sort($this->MIGRATIONS_DONE);
         $this->MIGRATIONS_DONE = array_reverse($this->MIGRATIONS_DONE);
@@ -170,8 +162,7 @@ class MigrationOperation
         }
 
         $this->updateHistoric();
-        $type = "s";
-        return "----------Reset successfull \\^o^/ ----------";
+        $this->colorLog("----------Reset successfull \\^o^/ ----------", "s");
     }
 
     public function updateHistoric()
@@ -202,5 +193,30 @@ class MigrationOperation
     public function setMigrationsFiles()
     {
         $this->MIGRATIONS_FILES = array_filter(scandir(__DIR__ . "/../"), fn ($f) => is_file(__DIR__ . "/../" . $f));
+    }
+
+    public function colorLog($str, $type = 'i')
+    {
+        switch ($type) {
+            case 'e': //error
+                echo "\033[31m$str \033[0m\n";
+                break;
+            case 's': //success
+                echo "\033[32m$str \033[0m\n";
+                break;
+            case 'w': //warning
+                echo "\033[33m$str \033[0m\n";
+                break;
+            case 'i': //info
+                echo "\033[36m$str \033[0m\n";
+                break;
+        }
+    }
+
+    public function clearLog()
+    {
+        for ($i = 0; $i < 25; $i++) {
+            echo "\n\r";
+        }
     }
 }

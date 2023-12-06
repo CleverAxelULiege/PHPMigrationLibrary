@@ -23,31 +23,30 @@ define("HISTORIC_PATH", __DIR__ . "/../history/historic.json");
 define("CONNECTION", $connectionToUse ?? "default");
 
 
-function colorLog($str, $type = 'i')
-{
-    clearLog();
-    switch ($type) {
-        case 'e': //error
-            echo "\033[31m$str \033[0m\n";
-            break;
-        case 's': //success
-            echo "\033[32m$str \033[0m\n";
-            break;
-        case 'w': //warning
-            echo "\033[33m$str \033[0m\n";
-            break;
-        case 'i': //info
-            echo "\033[36m$str \033[0m\n";
-            break;
-    }
-}
+// function colorLog($str, $type = 'i')
+// {
+//     switch ($type) {
+//         case 'e': //error
+//             echo "\033[31m$str \033[0m\n";
+//             break;
+//         case 's': //success
+//             echo "\033[32m$str \033[0m\n";
+//             break;
+//         case 'w': //warning
+//             echo "\033[33m$str \033[0m\n";
+//             break;
+//         case 'i': //info
+//             echo "\033[36m$str \033[0m\n";
+//             break;
+//     }
+// }
 
-function clearLog()
-{
-    for ($i = 0; $i < 10; $i++) {
-        echo "\n\r";
-    }
-}
+// function clearLog()
+// {
+//     for ($i = 0; $i < 10; $i++) {
+//         echo "\n\r";
+//     }
+// }
 
 $db = new Database(
     Config::$conn[CONNECTION]["host"],
@@ -60,26 +59,28 @@ $db = new Database(
 $migrationOperation = new MigrationOperation($db, HISTORIC_PATH);
 
 $migrationOperation->db->beginTransaction();
-$type = "";
 try {
     switch($migrationArg){
         case null:
-            colorLog($migrationOperation->migrate(null, $type), $type);
+            $migrationOperation->migrate(null);
             break;
 
         case "--reset":
-            colorLog($migrationOperation->rollbackAll($type), $type);
+            $migrationOperation->rollbackAll();
             break;
+
         case "--do":
-            colorLog($migrationOperation->doStep($migrationStep, $type), $type);
+            $migrationOperation->doStep($migrationStep);
             break;
+
         default:
-            colorLog("Unknown args\n");
+            $migrationOperation->colorLog("Unknown args", "w");
         break;
     }
     $migrationOperation->db->commitTransaction();
 } catch (Exception $e) {
-    colorLog("\n\n\n----------An error occured rolling back transaction (っ °Д °;)っ----------", "e");
-    colorLog($e->getMessage(), "w");
+    $migrationOperation->clearLog();
+    $migrationOperation->colorLog("----------An error occured rolling back transaction (っ °Д °;)っ----------", "e");
+    $migrationOperation->colorLog($e->getMessage(), "w");
     $migrationOperation->db->rollbackTransaction();
 }
