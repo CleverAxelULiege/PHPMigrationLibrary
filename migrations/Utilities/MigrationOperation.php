@@ -18,6 +18,19 @@ class MigrationOperation
         $this->requireAllMigrations();
     }
 
+    public function status(){
+        foreach ($this->MIGRATIONS_FILES as $migrationFile) {
+            $migrationFileWithoutExtension =  str_replace(".php", "", $migrationFile);
+            $creationDate = (int)substr($migrationFileWithoutExtension, 10, 14);
+
+            if(in_array($creationDate, $this->MIGRATIONS_DONE)){
+                $this->colorLog($migrationFile . " DONE ✓", "s");
+            } else {
+                $this->colorLog($migrationFile . " UNTRACKED X", "w");
+            }
+        }
+    }
+
     public function doStep(int $step)
     {
         $this->clearLog();

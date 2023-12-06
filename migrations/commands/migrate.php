@@ -73,6 +73,10 @@ try {
             $migrationOperation->doStep($migrationStep);
             break;
 
+        case "--status":
+            $migrationOperation->status();
+            break;
+
         default:
             $migrationOperation->colorLog("Unknown args", "w");
         break;
