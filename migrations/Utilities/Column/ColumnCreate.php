@@ -45,4 +45,10 @@ class ColumnCreate extends ColumnBase implements ColumnCreateInterface{
         $this->cascadeOnUpdate = true;
         return $this;
     }
+
+    public function withTimeZone()
+    {
+        $this->withTimeZone = true;
+        return $this;
+    }
 }

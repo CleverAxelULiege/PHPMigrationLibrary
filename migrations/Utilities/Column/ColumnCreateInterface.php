@@ -24,4 +24,8 @@ interface ColumnCreateInterface extends ColumnBaseInterface
      * @return $this
      */
     public function onUpdateCascade();
+    /**
+     * @return $this
+     */
+    public function withTimeZone();
 }

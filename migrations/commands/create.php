@@ -19,6 +19,7 @@ $migrationFile = "Migration_" . $date . "_" . $migrationName;
 
 try {
     $fstream = fopen(__DIR__ . "/../" . $migrationFile . ".php", "w");
+
     switch(getTemplate($migrationName)){
         case CREATE_TEMPLATE:
             $fileContent = file_get_contents(__DIR__ . "/../template/createTemplate.txt");
@@ -30,12 +31,14 @@ try {
             $fileContent = file_get_contents(__DIR__ . "/../template/normalTemplate.txt");
         break;
     }
+
     $fileContent = str_replace(":PLACE_HOLDER_CLASS", $migrationFile, $fileContent);
     if($match != 0){
         $fileContent = str_replace(":PLACE_HOLDER_TABLE", $matches[2], $fileContent);
     } else {
         $fileContent = str_replace(":PLACE_HOLDER_TABLE", "my_table", $fileContent);
     }
+    
     fwrite($fstream, $fileContent);
 } finally {
     fclose($fstream);

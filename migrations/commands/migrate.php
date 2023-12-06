@@ -22,32 +22,6 @@ require(__DIR__ . "/../../vendor/autoload.php");
 define("HISTORIC_PATH", __DIR__ . "/../history/historic.json");
 define("CONNECTION", $connectionToUse ?? "default");
 
-
-// function colorLog($str, $type = 'i')
-// {
-//     switch ($type) {
-//         case 'e': //error
-//             echo "\033[31m$str \033[0m\n";
-//             break;
-//         case 's': //success
-//             echo "\033[32m$str \033[0m\n";
-//             break;
-//         case 'w': //warning
-//             echo "\033[33m$str \033[0m\n";
-//             break;
-//         case 'i': //info
-//             echo "\033[36m$str \033[0m\n";
-//             break;
-//     }
-// }
-
-// function clearLog()
-// {
-//     for ($i = 0; $i < 10; $i++) {
-//         echo "\n\r";
-//     }
-// }
-
 $db = new Database(
     Config::$conn[CONNECTION]["host"],
     Config::$conn[CONNECTION]["db_name"],

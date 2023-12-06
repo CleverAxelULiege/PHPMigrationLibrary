@@ -2,6 +2,7 @@
 
 namespace Migrations;
 
+use Migrations\Utilities\DefaultDatetime;
 use Migrations\Utilities\Schema;
 use Migrations\Utilities\Migration;
 use Migrations\Utilities\TableCreateInterface;
@@ -15,8 +16,9 @@ class Migration_20231204122526_create_table_users extends Migration
         $schema->createTable("users", function (TableCreateInterface $table) {
             $table->addColumn("id")->int()->autoIncrement()->primaryKey();
             $table->addColumn("username")->varchar(128)->nullable(false);
-            $table->addColumn("password")->varchar(128)->nullable(false);
-            $table->addColumn("email")->varchar(128)->nullable(false);
+            // $table->addColumn("password")->varchar(128)->nullable(false);
+            // $table->addColumn("email")->varchar(128)->nullable(false);
+            $table->addColumn("date")->date()->nullable(false)->default(DefaultDatetime::CURRENT_TIMESTAMP. "(0)");
         });
     }
 

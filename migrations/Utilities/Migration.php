@@ -284,11 +284,10 @@ abstract class Migration
     private function getDefaultOrNullable(ColumnBase $column)
     {
         // $column
-        return (($column->nullable == true) ? " NULL" : " NOT NULL") .
-            ($column->default != null ?
-                ($column->withTimeZone ? " WITH TIME ZONE" : "")
-                . " DEFAULT " . $column->default : ""
-            );
+        return ($column->withTimeZone ? " WITH TIME ZONE" : "") .
+            (($column->nullable == true) ? " NULL" : " NOT NULL") .
+
+            ($column->default != null ? " DEFAULT " . $column->default : "");
     }
 
     private function getNameAndType(ColumnBase $column)

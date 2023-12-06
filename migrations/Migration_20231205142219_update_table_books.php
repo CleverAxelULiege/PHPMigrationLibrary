@@ -13,6 +13,7 @@ class Migration_20231205142219_update_table_books extends Migration
     {
         $schema->updateTable("books", function (TableUpdateInterface $table) {
             $table->addColumn("author")->varchar(256)->nullable(false);
+            $table->addColumn("from")->varchar(256)->nullable(false);
         });
 
         
@@ -22,6 +23,7 @@ class Migration_20231205142219_update_table_books extends Migration
     {
         $schema->updateTable("books", function (TableUpdateInterface $table) {
             $table->updateColumn("author")->drop();
+            $table->updateColumn("from")->drop();
         });
     }
 }
