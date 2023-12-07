@@ -28,4 +28,8 @@ interface ColumnCreateInterface extends ColumnBaseInterface
      * @return $this
      */
     public function withTimeZone();
+    /**
+     * @return $this
+     */
+    public function unique();
 }

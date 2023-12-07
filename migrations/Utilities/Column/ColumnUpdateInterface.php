@@ -22,4 +22,15 @@ interface ColumnUpdateInterface extends ColumnBaseInterface
     public function dropForeignKey(?string $constraint = null);
 
     public function drop(): void;
+    /**
+     * @return $this
+     */
+    public function dropUnique();
+    
+    /**
+     * @return $this
+     */
+    public function addUnique();
+
+    public function rename(string $name);
 }

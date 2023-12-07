@@ -23,6 +23,7 @@ abstract class Migration
 
         foreach ($tables as $table) {
             $instruction = new Instruction($table->name);
+            array_push($this->instructions, $instruction);
 
             switch ($table->operation) {
                 case Table::ADD:
@@ -31,7 +32,11 @@ abstract class Migration
                     break;
                 case Table::UPDATE:
                     $instruction->setOperation(Table::UPDATE);
-                    $this->updateTable($table, $instruction);
+                    if($table->newName != null){
+                        $instruction->set("RENAME TO " . $table->newName);
+                    } else {
+                        $this->updateTable($table, $instruction);
+                    }
                     break;
                 case Table::DELETE:
                     $instruction->setOperation(Table::DELETE);
@@ -41,7 +46,6 @@ abstract class Migration
                     break;
             }
 
-            array_push($this->instructions, $instruction);
         }
         return $this;
     }
@@ -60,7 +64,15 @@ abstract class Migration
                     break;
                 case Table::UPDATE:
                     $query = "ALTER TABLE " . $instruction->tableName . " ";
-                    $query .= implode(", ", $instruction->instructions) . ($instruction->constraints == [] ? "" : ", ");
+                    
+                    if ($instruction->removeConstraints != []) {
+                        $query .= implode(", ", $instruction->removeConstraints) . (($instruction->constraints == [] && $instruction->instructions == [])  ? "" : ", ");
+                    }
+
+                    if($instruction->instructions != []){
+                        $query .= implode(", ", $instruction->instructions) . ($instruction->constraints == [] ? "" : ", ");
+                    }
+                    
                     $query .= implode(", ", $instruction->constraints) . ";";
                     break;
                 case Table::DELETE:
@@ -79,7 +91,7 @@ abstract class Migration
     private function updateTable(Table $table, Instruction $instruction)
     {
         foreach ($table->columns as $column) {
-
+            
             if ($column instanceof ColumnUpdateInterface) {
 
                 if ($column->cascadeOnDelete || $column->cascadeOnUpdate) {
@@ -91,12 +103,19 @@ abstract class Migration
                 $this->updateType($column, $instruction);
                 $this->updateNullable($column, $instruction);
                 $this->updateDefault($column, $instruction);
-                $this->addPrimaryConstraint($column, $instruction);
-                $this->addForeignConstraint($column, $instruction);
 
                 if ($column->dropColumn) {
                     $instruction->set("DROP COLUMN " . $column->name);
                 }
+
+                if($column->newName != null){
+                    $renameInstruction = new Instruction($table->name);
+                    $renameInstruction->setOperation(Table::UPDATE);
+                    $renameInstruction->set("RENAME " . $column->name . " TO ". $column->newName);
+                    array_push($this->instructions, $renameInstruction);
+                }
+
+
             } elseif ($column instanceof ColumnCreateInterface) {
                 $addColumn = "ADD COLUMN ";
                 switch ($column->type) {
@@ -122,13 +141,13 @@ abstract class Migration
 
                 $instruction->set($addColumn);
 
-                if ($column->primaryKeyConstraint != null) {
-                    $this->addPrimaryConstraint($column, $instruction);
-                }
-                if ($column->foreignKeyConstraint != null) {
-                    $this->addForeignConstraint($column, $instruction);
-                }
+                
+
+                
             }
+            $this->addPrimaryConstraint($column, $instruction);
+            $this->addForeignConstraint($column, $instruction);
+            $this->addUniqueConstraint($column, $instruction);
         }
     }
 
@@ -159,15 +178,26 @@ abstract class Migration
         }
     }
 
+    private function addUniqueConstraint(ColumnBase $column, Instruction $instruction){
+        if($column->uniqueConstraint != null){
+            $instruction->setConstraint("ADD CONSTRAINT " . $column->uniqueConstraint . " UNIQUE (" . $column->name . ")");
+        }
+    }
+
     private function dropConstraint(ColumnBase $column, Instruction $instruction)
     {
         if ($column->dropPk) {
-            $instruction->set("DROP CONSTRAINT " . $column->primaryKeyConstraint);
+            $instruction->setConstraintToRemove("DROP CONSTRAINT " . $column->primaryKeyConstraint);
             $column->primaryKeyConstraint = null;
         }
         if ($column->dropFk) {
-            $instruction->set("DROP CONSTRAINT " . $column->foreignKeyConstraint);
+            $instruction->setConstraintToRemove("DROP CONSTRAINT " . $column->foreignKeyConstraint);
             $column->foreignKeyConstraint = null;
+        }
+
+        if ($column->dropUnique) {
+            $instruction->setConstraintToRemove("DROP CONSTRAINT " . $column->uniqueConstraint);
+            $column->uniqueConstraint = null;
         }
     }
 
@@ -279,11 +309,14 @@ abstract class Migration
                     ($column->cascadeOnUpdate ? " ON UPDATE CASCADE" : "")
             );
         }
+
+        if ($column->uniqueConstraint != null) {
+            $instruction->setConstraint("CONSTRAINT " . $column->uniqueConstraint . " UNIQUE (" . $column->name . ")");
+        }
     }
 
     private function getDefaultOrNullable(ColumnBase $column)
     {
-        // $column
         return ($column->withTimeZone ? " WITH TIME ZONE" : "") .
             (($column->nullable == true) ? " NULL" : " NOT NULL") .
 

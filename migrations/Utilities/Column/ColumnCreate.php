@@ -51,4 +51,10 @@ class ColumnCreate extends ColumnBase implements ColumnCreateInterface{
         $this->withTimeZone = true;
         return $this;
     }
+
+    public function unique()
+    {
+        $this->uniqueConstraint = ColumnBase::UNIQUE_PREFIX . $this->name;
+        return $this;
+    }
 }

@@ -85,6 +85,7 @@ class MigrationOperation
         $newMigrationsCount = count($this->MIGRATIONS_FILES) - count($this->MIGRATIONS_DONE);
 
         if ($newMigrationsCount == 0) {
+            $this->clearLog();
             $this->colorLog("----------No new migration added ¯\\_(ツ)_/¯----------", "i");
             return;
         }

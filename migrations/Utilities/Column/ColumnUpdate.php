@@ -41,4 +41,22 @@ class ColumnUpdate extends ColumnCreate implements ColumnUpdateInterface{
     {
         $this->dropColumn = true;
     }
+
+    public function dropUnique()
+    {
+        $this->dropUnique = true;
+        $this->uniqueConstraint = ColumnBase::UNIQUE_PREFIX . $this->name;
+        return $this;
+    }
+
+    public function addUnique()
+    {
+        $this->unique();
+        return $this;
+    }
+
+    public function rename(string $name)
+    {
+        $this->newName = $name;
+    }
 }

@@ -18,6 +18,9 @@ class Table implements TableUpdateInterface{
     const ADD = 0;
     const UPDATE = 1;
     const DELETE = 2;
+
+    public ?string $newName = null;
+
     public function __construct(public string $name, public int $operation)
     {
         

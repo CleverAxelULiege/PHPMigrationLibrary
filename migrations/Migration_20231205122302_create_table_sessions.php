@@ -22,6 +22,7 @@ class Migration_20231205122302_create_table_sessions extends Migration
     {  
         $schema->updateTable("sessions", function(TableUpdateInterface $table){
             $table->updateColumn("user_id")->dropForeignKey();
+            $table->updateColumn("user_id")->drop();
         });
         $schema->dropTable("sessions");
     }

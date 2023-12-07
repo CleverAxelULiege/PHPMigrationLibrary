@@ -19,6 +19,8 @@ class ColumnType{
     public static string $timestamp = "TIMESTAMP";
     public static string $date = "DATE";
     public static string $time = "TIME";
+    public static string $uuid = "UUID";
+    public static string $json = "JSONB";
     // case bool;
 
     // case char;

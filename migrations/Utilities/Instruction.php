@@ -6,6 +6,7 @@ class Instruction
 {
     public array $instructions = [];
     public array $constraints = [];
+    public array $removeConstraints = [];
     public int $operation = -1;
     public function __construct(public string $tableName)
     {
@@ -24,5 +25,10 @@ class Instruction
     public function setConstraint(string $instruction)
     {
         array_push($this->constraints, $instruction);
+    }
+
+    public function setConstraintToRemove(string $instruction)
+    {
+        array_push($this->removeConstraints, $instruction);
     }
 }

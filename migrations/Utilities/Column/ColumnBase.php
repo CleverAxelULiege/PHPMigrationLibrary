@@ -7,6 +7,7 @@ use Migrations\Utilities\ColumnType;
 class ColumnBase implements ColumnBaseInterface{
     const PK_PREFIX = "pk_";
     const FK_PREFIX = "fk_";
+    const UNIQUE_PREFIX = "uniq_";
     public ?string $type = null;
     public ?int $length = null;
     public ?int $precision = null;
@@ -20,13 +21,17 @@ class ColumnBase implements ColumnBaseInterface{
     public bool $dropColumn = false;
     public bool $dropPk = false;
     public bool $dropFk = false;
+    public bool $dropUnique = false;
 
     public ?string $primaryKeyConstraint = null;
     public ?string $foreignKeyConstraint = null;
     public ?string $foreignKeyTableReference = null;
     public ?string $foreignKeyColumnReference = null;
+    public ?string $uniqueConstraint = null;
 
     public ?string $default = null;
+
+    public ?string $newName = null;
 
 
     public function __construct(public string $name)
@@ -124,6 +129,16 @@ class ColumnBase implements ColumnBaseInterface{
     public function default(string $default)
     {
         $this->default = $default;
+        return $this;
+    }
+
+    public function uuid(){
+        $this->type = ColumnType::$uuid;
+        return $this;
+    }
+
+    public function json(){
+        $this->type = ColumnType::$json;
         return $this;
     }
 }

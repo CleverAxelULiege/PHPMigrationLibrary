@@ -35,7 +35,7 @@ $migrationOperation = new MigrationOperation($db, HISTORIC_PATH);
 $migrationOperation->db->beginTransaction();
 try {
     switch($migrationArg){
-        case null:
+        case "--all":
             $migrationOperation->migrate(null);
             break;
 
@@ -52,7 +52,11 @@ try {
             break;
 
         default:
-            $migrationOperation->colorLog("Unknown args", "w");
+            $migrationOperation->colorLog("Unknown args. Possible args are :", "w");
+            $migrationOperation->colorLog("--all -> MIGRATE ALL REMAINING MIGRATIONS", "w");
+            $migrationOperation->colorLog("--reset -> RESET ALL MIGRATIONS", "w");
+            $migrationOperation->colorLog("--do:<integer> -> ADVANCE OR ROLLBACK FROM THE INTEGER PASSED", "w");
+            $migrationOperation->colorLog("--status -> CHECK THE STATUS OF THE MIGRATIONS", "w");
         break;
     }
     $migrationOperation->db->commitTransaction();

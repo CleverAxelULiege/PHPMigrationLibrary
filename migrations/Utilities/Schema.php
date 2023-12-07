@@ -28,6 +28,12 @@ class Schema
         array_push($this->tables, $table);
     }
 
+    public function renameTable(string $name, string $newName){
+        $table = new Table($name, Table::UPDATE);
+        $table->newName = $newName;
+        array_push($this->tables, $table);
+    }
+
     public function getTables()
     {
         return $this->tables;

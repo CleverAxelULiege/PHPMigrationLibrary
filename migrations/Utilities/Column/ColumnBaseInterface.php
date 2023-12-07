@@ -65,4 +65,13 @@ interface ColumnBaseInterface
      * @return $this
      */
     public function default(string $default);
+    /**
+     * @return $this
+     */
+    public function uuid();
+    
+    /**
+     * @return $this
+     */
+    public function json();
 }
