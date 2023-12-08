@@ -41,7 +41,7 @@ class Random
 
     public static function text()
     {
-        
+        return self::sentence();
     }
 
     public static function timestamp(string $format = "Y-m-d H:i:s")
@@ -99,8 +99,13 @@ class Random
         return $randomWord;
     }
 
-    private static function randomSentence()
+    public static function sentence(?int $wordsCount = null)
     {
+        if ($wordsCount === null) {
+            $wordsCount = rand(5, 50);
+        }
+        $punctuationsList = ["!", ".", "?", ",", ";"];
+        $lengthPunctationsList = 4;
         $wordsList = [
             "lorem",
             "ipsum",
@@ -378,5 +383,39 @@ class Random
             "magniipsa",
             "reiciendisnecessitatibus",
         ];
+        $lengthWordsList = 274;
+
+        $sentence = "";
+        $hasPrevPunctation = false;
+        $needsUppercase = true;
+        for ($i = 0; $i < $wordsCount; $i++) {
+
+            if($i != 0 && $i < $wordsCount){
+                $sentence .= " ";
+            }
+
+            $randWord = $wordsList[rand(0, $lengthWordsList)];
+            if ($needsUppercase) {
+                $sentence .= ucfirst($randWord);
+                $needsUppercase = false;
+            } else {
+                $sentence .= $randWord;
+            }
+
+            if (rand(0, 5) == 5) {
+                $randPunctuation = $punctuationsList[rand(0, $lengthPunctationsList)];
+                $hasPrevPunctation = true;
+
+                if (!in_array($randPunctuation, [",", ";"])) {
+                    $needsUppercase = true;
+                }
+
+                $sentence .= $randPunctuation;
+            }
+
+            
+        }
+
+        return $sentence . ".";
     }
 }
