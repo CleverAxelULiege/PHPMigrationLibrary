@@ -2,6 +2,7 @@
 
 namespace Seeds\Utilities;
 
+use DateTime;
 use Normalizer;
 
 class Random{
@@ -17,6 +18,36 @@ class Random{
         $randomExtension = $extensionList[rand(0, count($extensionList)-1)];
         $randomDomain = $domainList[rand(0, count($domainList)-1)];
         return self::pickRandomWordFromDictionnary() . (rand(0, 3) == 3 ? "." . self::pickRandomWordFromDictionnary() : "") . "@". $randomDomain . "." . $randomExtension;
+    }
+
+    public static function name(){
+        return self::pickRandomNameFromDictionnary();
+    }
+
+    public static function birthdate(string $format = "Y-m-d"){
+        $currentYear = (int)date("Y");
+        $year = rand($currentYear - 100, $currentYear);
+        $month = rand(1, 12);
+        $day = rand(1, 31);
+        $date = new DateTime();
+        $date->setDate($year, $month, $day);
+        return $date->format($format);
+    }
+
+    private static function pickRandomNameFromDictionnary(){
+        $randomLine = rand(0, 1425);
+        $i = 0;
+        $randomName = "";
+        try{
+            $fstream = fopen(__DIR__ . "/dictionnary/name_dictionnary_s.txt", "r");
+            while (($randomName = fgets($fstream, 4096)) !== false && $i < $randomLine) {
+                $i++;
+            }
+        }finally{
+            fclose($fstream);
+        }
+
+        return str_replace(["\r", "\n"], '', $randomName);;
     }
 
     private static function pickRandomWordFromDictionnary(){

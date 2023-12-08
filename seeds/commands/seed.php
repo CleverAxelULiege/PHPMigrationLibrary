@@ -18,7 +18,9 @@ require(__DIR__ . "/../../vendor/autoload.php");
 // die;
 
 // var_dump(Random::password(10));
-echo Random::email();
+// echo Random::Name() . " " . Random::Name();
+
+echo Random::birthdate() . " / " . Random::name() . " " . Random::name();
 die;
 
 $db = new Database(
