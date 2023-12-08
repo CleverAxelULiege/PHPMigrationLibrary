@@ -18,9 +18,13 @@ require(__DIR__ . "/../../vendor/autoload.php");
 // die;
 
 // var_dump(Random::password(10));
-// echo Random::Name() . " " . Random::Name();
+// echo Random::email() . "\n";
+// echo Random::password() . "\n";
+// // echo Random::Name() . " " . Random::Name();
 
-echo Random::birthdate() . " / " . Random::name() . " " . Random::name();
+// echo Random::birthdate() . " / " . Random::name() . " " . Random::name();
+echo Random::text();
+echo "-----\n";
 die;
 
 $db = new Database(
@@ -33,3 +37,5 @@ $db = new Database(
 $seedOperation = new SeedOperation($db);
 $seedOperation->setAllSeedsFile();
 $seedOperation->createSeeds()->insertSeeds();
+?>
+
