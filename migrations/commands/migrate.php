@@ -19,7 +19,6 @@ if($connectionToUse != null){
 }
 
 require(__DIR__ . "/../../vendor/autoload.php");
-define("HISTORIC_PATH", __DIR__ . "/../history/historic.json");
 define("CONNECTION", $connectionToUse ?? "default");
 
 $db = new Database(
@@ -30,7 +29,7 @@ $db = new Database(
     Config::$conn[CONNECTION]["password"]
 );
 
-$migrationOperation = new MigrationOperation($db, HISTORIC_PATH);
+$migrationOperation = new MigrationOperation($db);
 
 $migrationOperation->db->beginTransaction();
 try {

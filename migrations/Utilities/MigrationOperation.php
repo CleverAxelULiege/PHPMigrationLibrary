@@ -12,7 +12,7 @@ class MigrationOperation
     public array $MIGRATIONS_FILES = [];
     public string $currentMigrationFile = "";
 
-    public function __construct(public Database $db, private string $HISTORIC_PATH)
+    public function __construct(public Database $db)
     {
         $this->createMigrationTableIfNotExists();
         $this->setMigrationsDone();
