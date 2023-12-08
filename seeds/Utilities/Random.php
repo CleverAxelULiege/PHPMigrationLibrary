@@ -415,7 +415,9 @@ class Random
 
             
         }
-
-        return $sentence . ".";
+        if($hasPrevPunctation)
+            $sentence = substr($sentence, 0, -1);
+            
+        return $sentence . ". \n\r";
     }
 }
