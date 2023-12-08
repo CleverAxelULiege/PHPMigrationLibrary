@@ -12,6 +12,8 @@ if ($migrationName == null) {
 }
 
 $matches = [];
+
+//regarde si un nom de table a été passé
 $match = preg_match("/.*(table_)(.+)/", $migrationName, $matches);
 
 
@@ -33,9 +35,12 @@ try {
     }
 
     $fileContent = str_replace(":PLACE_HOLDER_CLASS", $migrationFile, $fileContent);
+
     if($match != 0){
+        //un nom de table a été passé je peux le remplacer automatiquement
         $fileContent = str_replace(":PLACE_HOLDER_TABLE", $matches[2], $fileContent);
     } else {
+        //sinon nom par défaut
         $fileContent = str_replace(":PLACE_HOLDER_TABLE", "my_table", $fileContent);
     }
     

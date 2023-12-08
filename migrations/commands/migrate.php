@@ -1,7 +1,7 @@
 <?php
 
-use Migrations\Utilities\Database\Config;
-use Migrations\Utilities\Database\Database;
+use App\Database\Config;
+use App\Database\Database;
 use Migrations\Utilities\MigrationOperation;
 
 $migrationArg = $argv[1] ?? null;
