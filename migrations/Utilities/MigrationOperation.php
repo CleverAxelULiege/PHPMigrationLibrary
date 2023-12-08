@@ -10,20 +10,23 @@ class MigrationOperation
 {
     public array $MIGRATIONS_DONE = [];
     public array $MIGRATIONS_FILES = [];
+    public string $currentMigrationFile = "";
 
     public function __construct(public Database $db, private string $HISTORIC_PATH)
     {
+        $this->createMigrationTableIfNotExists();
         $this->setMigrationsDone();
         $this->setMigrationsFiles();
         $this->requireAllMigrations();
     }
 
-    public function status(){
+    public function status()
+    {
         foreach ($this->MIGRATIONS_FILES as $migrationFile) {
             $migrationFileWithoutExtension =  str_replace(".php", "", $migrationFile);
             $creationDate = (int)substr($migrationFileWithoutExtension, 10, 14);
 
-            if(in_array($creationDate, $this->MIGRATIONS_DONE)){
+            if (in_array($creationDate, $this->MIGRATIONS_DONE)) {
                 $this->colorLog($migrationFile . " DONE ✓", "s");
             } else {
                 $this->colorLog($migrationFile . " UNTRACKED X", "w");
@@ -62,6 +65,7 @@ class MigrationOperation
         sort($this->MIGRATIONS_DONE);
         $this->MIGRATIONS_DONE = array_reverse($this->MIGRATIONS_DONE);
         for ($i = 0; $i < $step; $i++) {
+            $this->currentMigrationFile = $this->retrieveFilenameFromDate($this->MIGRATIONS_DONE[$i]);
             $className = $this->retrieveClassnameFromFile($this->retrieveFilenameFromDate($this->MIGRATIONS_DONE[$i]));
             /**
              * @var \Migrations\Utilities\Migration
@@ -81,7 +85,7 @@ class MigrationOperation
 
     public function migrate(?int $step)
     {
-        
+
         $newMigrationsCount = count($this->MIGRATIONS_FILES) - count($this->MIGRATIONS_DONE);
 
         if ($newMigrationsCount == 0) {
@@ -97,10 +101,11 @@ class MigrationOperation
             if ($step != null && $i >= $step) {
                 break;
             }
-
+            $this->currentMigrationFile = $migrationFile;
             $migrationFileWithoutExtension =  str_replace(".php", "", $migrationFile);
             $className = $this->retrieveClassnameFromFile($migrationFile);
             $creationDate = (int)substr($migrationFileWithoutExtension, 10, 14);
+
             if (!in_array($creationDate, $this->MIGRATIONS_DONE)) {
                 /**
                  * @var \Migrations\Utilities\Migration
@@ -161,6 +166,7 @@ class MigrationOperation
         $this->MIGRATIONS_DONE = array_reverse($this->MIGRATIONS_DONE);
 
         foreach ($this->MIGRATIONS_DONE as $migrationDone) {
+            $this->currentMigrationFile = $this->retrieveFilenameFromDate($migrationDone);
             $className = $this->retrieveClassnameFromFile($this->retrieveFilenameFromDate($migrationDone));
             /**
              * @var \Migrations\Utilities\Migration
@@ -181,32 +187,35 @@ class MigrationOperation
 
     public function updateHistoric()
     {
-        try {
-            sort($this->MIGRATIONS_DONE);
-            $fstream = fopen($this->HISTORIC_PATH, "w");
-            fwrite($fstream, json_encode($this->MIGRATIONS_DONE));
-        } finally {
-            fclose($fstream);
+        $values = array_map(fn($m) => "(". $m .")", $this->MIGRATIONS_DONE);
+        $this->db->run("TRUNCATE _migrations;");
+
+        if($values !== []){
+            $this->db->run("INSERT INTO _migrations(creation_timestamp) VALUES ". implode(",", $values) .";");
         }
     }
 
-    public function setMigrationsDone()
+    private function setMigrationsDone()
     {
-        if (file_exists($this->HISTORIC_PATH)) {
-            $this->MIGRATIONS_DONE = json_decode(file_get_contents($this->HISTORIC_PATH)) ?? [];
-        }
+        $creationTimestamps = $this->db->run("SELECT creation_timestamp FROM _migrations ORDER BY creation_timestamp")->fetchAll();
+        $this->MIGRATIONS_DONE = array_map(fn($ct) => $ct->creation_timestamp, $creationTimestamps);
     }
 
-    public function requireAllMigrations()
+    private function requireAllMigrations()
     {
         foreach ($this->MIGRATIONS_FILES as $file) {
             require(__DIR__ . "/../" . $file);
         }
     }
 
-    public function setMigrationsFiles()
+    private function setMigrationsFiles()
     {
         $this->MIGRATIONS_FILES = array_filter(scandir(__DIR__ . "/../"), fn ($f) => is_file(__DIR__ . "/../" . $f));
+    }
+
+    private function createMigrationTableIfNotExists()
+    {
+        $this->db->run("CREATE TABLE IF NOT EXISTS _migrations (creation_timestamp BIGINT PRIMARY KEY)");
     }
 
     public function colorLog($str, $type = 'i')

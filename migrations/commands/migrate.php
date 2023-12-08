@@ -62,7 +62,8 @@ try {
     $migrationOperation->db->commitTransaction();
 } catch (Exception $e) {
     $migrationOperation->clearLog();
-    $migrationOperation->colorLog("----------An error occured rolling back transaction (っ °Д °;)っ----------", "e");
+    $migrationOperation->colorLog("----------An error occured rolling back transaction (っ °Д °;)っ----------\n", "e");
+    $migrationOperation->colorLog("The error occured in this file : " . $migrationOperation->currentMigrationFile, "i");
     $migrationOperation->colorLog($e->getMessage(), "w");
     $migrationOperation->db->rollbackTransaction();
 }
