@@ -2,12 +2,18 @@
 
 namespace Seeds\Utilities;
 
+use App\Database\Database;
+
 class SeedOperation
 {
     /** @var \Seeds\Utilities\Seed[] */
     private array $seeds = [];
-
     private array $seedFiles = [];
+
+    public function __construct(private Database $db)
+    {
+        
+    }
 
     public function setAllSeedsFile()
     {
@@ -43,12 +49,16 @@ class SeedOperation
         foreach ($this->seeds as $seed) {
             foreach($seed->tablesWithData as $tableName => $table){
                 foreach ($table as $columns) {
-                    foreach($columns as $columnName => $columnValue){
-                        var_dump($columnName);
-                    }
+                    $this->createInsert($tableName, $columns);
                 }
             }
         }
+    }
+
+    private function createInsert(string $tableName, array $columns){
+        $placeHolders = array_map(fn() => "?", $columns);
+        $query = "INSERT INTO " . $tableName . "(" . implode(", ", array_keys($columns)) . ") VALUES (" . implode(", ", $placeHolders) . ")";
+        $this->db->run($query, array_values($columns));
     }
 
     private function getClassNameFromFile($file)

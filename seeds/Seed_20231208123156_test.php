@@ -9,32 +9,17 @@ class Seed_20231208123156_test extends AbstractSeed
 {
     public function seed(SeedInterface $seed)
     {
-        $seed->table("my_table")->with([
+        $seed->table("users")->with([
             [
-                "column_1" => "value",
-                "column_2" => "value",
-                "column_3" => "value",
+                "username" => "Billy",
+                "password" => "12345",
+                "email" => "email@email.com",
             ],
             [
-                "column_1" => "other_value",
-                "column_2" => "other_value",
-                "column_3" => "other_value",
+                "username" => "bob",
+                "password" => "54321",
+                "email" => "wow@mail.com",
             ],
-            //etc..
-        ]);
-
-        $seed->table("my_table")->with([
-            [
-                "column_1" => "value_",
-                "column_2" => "value_",
-                "column_3" => "value_",
-            ],
-            [
-                "column_1" => "other_value_",
-                "column_2" => "other_value_",
-                "column_3" => "other_value_",
-            ],
-            //etc..
         ]);
     }
 }
