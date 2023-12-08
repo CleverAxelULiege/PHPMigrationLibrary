@@ -5,13 +5,13 @@ namespace Seeds\Utilities;
 class Seed implements SeedInterface{
     public string $table;
 
-    public array $tableWithData = [];
+    public array $tablesWithData = [];
 
     public function table(string $table){
         $this->table = $table;
 
-        if(!isset($this->tableWithData[$table])){
-            $this->tableWithData[$table] = [];
+        if(!isset($this->tablesWithData[$table])){
+            $this->tablesWithData[$table] = [];
         }
 
         return $this;
@@ -21,7 +21,7 @@ class Seed implements SeedInterface{
      * @param array{columnName: string, value: string} $data
      */
     public function with(array $data){
-        array_push($this->tableWithData[$this->table], $data);
+        array_push($this->tablesWithData[$this->table], ...$data);
     }
 }
 

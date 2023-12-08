@@ -35,6 +35,20 @@ class SeedOperation
             $abstractSeed = new $className();
             $abstractSeed->seed($seed);
         }
+
+        return $this;
+    }
+
+    public function insertSeeds(){
+        foreach ($this->seeds as $seed) {
+            foreach($seed->tablesWithData as $tableName => $table){
+                foreach ($table as $columns) {
+                    foreach($columns as $columnName => $columnValue){
+                        var_dump($columnName);
+                    }
+                }
+            }
+        }
     }
 
     private function getClassNameFromFile($file)

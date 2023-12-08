@@ -22,5 +22,19 @@ class Seed_20231208123156_test extends AbstractSeed
             ],
             //etc..
         ]);
+
+        $seed->table("my_table")->with([
+            [
+                "column_1" => "value_",
+                "column_2" => "value_",
+                "column_3" => "value_",
+            ],
+            [
+                "column_1" => "other_value_",
+                "column_2" => "other_value_",
+                "column_3" => "other_value_",
+            ],
+            //etc..
+        ]);
     }
 }
