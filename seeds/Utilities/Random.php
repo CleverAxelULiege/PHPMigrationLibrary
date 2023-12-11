@@ -47,6 +47,43 @@ class Random
         return self::pickRandomCountryFromDictionnary();
     }
 
+    public static function number(?int $min = null, ?int $max = null)
+    {
+        return rand($min ?? 1, $max ?? 999);
+    }
+
+    public static function postalCode()
+    {
+        $postalCode = rand(1, 9999);
+
+        if($postalCode < 10){
+            return "000" . $postalCode;
+        }
+
+        if($postalCode < 100){
+            return "00" . $postalCode;
+        }
+
+        if($postalCode < 1000){
+            return "0" . $postalCode;
+        }
+
+        return $postalCode;
+    }
+
+    public static function phoneNumber()
+    {
+        $prefixes = ["04", "+32", "09", "0033", "0032", "+49", "06", "01", "03"];
+
+        $phoneNumber = $prefixes[rand(0, count($prefixes) - 1)];
+        $limit = rand(8, 10);
+        for ($i = 0; $i < $limit; $i++) {
+            $phoneNumber .= (string)rand(0, 9);
+        }
+
+        return $phoneNumber;
+    }
+
     public static function birthdate(string $format = "Y-m-d")
     {
         $currentYear = (int)date("Y");

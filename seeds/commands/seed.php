@@ -25,7 +25,7 @@ require(__DIR__ . "/../../vendor/autoload.php");
 // echo Random::birthdate() . " / " . Random::name() . " " . Random::name();
 
 // echo Random::text();
-echo Random::street();
+echo Random::name() . " " . Random::firstname() . " " . Random::email();
 echo "\n\n";
 die;
 
