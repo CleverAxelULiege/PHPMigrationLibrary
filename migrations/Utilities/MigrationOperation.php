@@ -3,8 +3,8 @@
 namespace Migrations\Utilities;
 
 use Exception;
+use App\Database\Database;
 use Migrations\Utilities\Schema;
-use Migrations\Utilities\Database\Database;
 
 class MigrationOperation
 {

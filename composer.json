@@ -1,7 +1,9 @@
 {
     "autoload": {
         "psr-4": {
-            "Migrations\\": "migrations/"
+            "Migrations\\": "migrations/",
+            "Seeds\\": "seeds/",
+            "App\\": "src/"
         }
     }
 }
