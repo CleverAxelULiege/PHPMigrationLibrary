@@ -15,10 +15,16 @@ $db = new Database(
     Config::$conn[CONNECTION]["user"],
     Config::$conn[CONNECTION]["password"]
 );
-$seedOperation = new SeedOperation($db);
-$seedOperation->setAllSeedsFile();
-$seedOperation->createSeeds()->insertSeeds();
+$db->beginTransaction();
 
-echo "SUCCESSFULLY SEEDED THE DATABASE\n";
-?>
+try {
+    $seedOperation = new SeedOperation($db);
+    $seedOperation->setAllSeedsFile();
+    $seedOperation->createSeeds()->insertSeeds();
+    echo "SUCCESSFULLY SEEDED THE DATABASE\n";
+    $db->commitTransaction();
+} catch (Exception $e) {
+    echo "FAILED TO SEED THE DATABASE ROLLING BACK THE SEEDING\n";
+    $db->rollbackTransaction();
+}
 
