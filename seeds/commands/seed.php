@@ -23,8 +23,10 @@ require(__DIR__ . "/../../vendor/autoload.php");
 // // echo Random::Name() . " " . Random::Name();
 
 // echo Random::birthdate() . " / " . Random::name() . " " . Random::name();
-echo Random::text();
-echo "-----\n";
+
+// echo Random::text();
+echo Random::street();
+echo "\n\n";
 die;
 
 $db = new Database(

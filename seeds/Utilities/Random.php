@@ -7,6 +7,10 @@ use Normalizer;
 
 class Random
 {
+    const SMALL_NAME_DICTIONNARY_LENGTH = 4417;
+    const FIRSTNAME_DICTIONNARY_LENGTH = 4944;
+    const SMALL_STREET_DICTIONNARY_LENGTH = 5138;
+    const COUNTRY_DICTIONNARY_LENGTH = 248;
     public static function password(int $length = 10)
     {
         $length = floor($length / 2);
@@ -28,10 +32,25 @@ class Random
         return self::pickRandomNameFromDictionnary();
     }
 
+    public static function firstname()
+    {
+        return self::pickRandomFirstnameFromDictionnary();
+    }
+
+    public static function street()
+    {
+        return self::pickRandomStreetFromDictionnary();
+    }
+
+    public static function country()
+    {
+        return self::pickRandomCountryFromDictionnary();
+    }
+
     public static function birthdate(string $format = "Y-m-d")
     {
         $currentYear = (int)date("Y");
-        $year = rand($currentYear - 100, $currentYear);
+        $year = rand($currentYear - 80, $currentYear);
         $month = rand(1, 12);
         $day = rand(1, 31);
         $date = new DateTime();
@@ -39,9 +58,17 @@ class Random
         return $date->format($format);
     }
 
-    public static function text()
+    public static function text(?int $nbrParagraphes = null)
     {
-        return self::sentence();
+        $paragraphes = [];
+        if ($nbrParagraphes == null) {
+            $nbrParagraphes = rand(2, 7);
+        }
+        for ($i = 0; $i < $nbrParagraphes; $i++) {
+            array_push($paragraphes, self::paragraph());
+        }
+
+        return implode("\n", $paragraphes);
     }
 
     public static function timestamp(string $format = "Y-m-d H:i:s")
@@ -58,13 +85,47 @@ class Random
         return $date->format($format);
     }
 
-    private static function pickRandomNameFromDictionnary()
+    private static function pickRandomFirstnameFromDictionnary()
     {
-        $randomLine = rand(0, 1425);
+        $randomLine = rand(0, Random::FIRSTNAME_DICTIONNARY_LENGTH);
         $i = 0;
         $randomName = "";
         try {
-            $fstream = fopen(__DIR__ . "/dictionnary/name_dictionnary_s.txt", "r");
+            $fstream = fopen(__DIR__ . "/dictionnary/firstname_dictionnary.txt", "r");
+            while (($randomName = fgets($fstream, 4096)) !== false && $i < $randomLine) {
+                $i++;
+            }
+        } finally {
+            fclose($fstream);
+        }
+
+        return str_replace(["\r", "\n"], '', $randomName);;
+    }
+
+    private static function pickRandomNameFromDictionnary()
+    {
+        $randomLine = rand(0, Random::SMALL_NAME_DICTIONNARY_LENGTH);
+        $i = 0;
+        $randomName = "";
+        try {
+            $fstream = fopen(__DIR__ . "/dictionnary/small_name_dictionnary.txt", "r");
+            while (($randomName = fgets($fstream, 4096)) !== false && $i < $randomLine) {
+                $i++;
+            }
+        } finally {
+            fclose($fstream);
+        }
+
+        return str_replace(["\r", "\n"], '', $randomName);;
+    }
+
+    private static function pickRandomStreetFromDictionnary()
+    {
+        $randomLine = rand(0, Random::SMALL_STREET_DICTIONNARY_LENGTH);
+        $i = 0;
+        $randomName = "";
+        try {
+            $fstream = fopen(__DIR__ . "/dictionnary/small_street_dictionnary.txt", "r");
             while (($randomName = fgets($fstream, 4096)) !== false && $i < $randomLine) {
                 $i++;
             }
@@ -99,11 +160,37 @@ class Random
         return $randomWord;
     }
 
-    public static function sentence(?int $wordsCount = null)
+    private static function pickRandomCountryFromDictionnary()
+    {
+        $randomLine = rand(0, Random::COUNTRY_DICTIONNARY_LENGTH);
+        $i = 0;
+        $randomWord = "";
+        try {
+            $fstream = fopen(__DIR__ . "/dictionnary/country_dictionnary.txt", "r");
+            while (($randomWord = fgets($fstream, 4096)) !== false && $i < $randomLine) {
+                $i++;
+            }
+        } finally {
+            fclose($fstream);
+        }
+
+        $randomWord = str_replace(["\r", "\n"], '', $randomWord);
+
+        if (strlen($randomWord) <= 3) {
+            self::pickRandomWordFromDictionnary();
+        }
+
+        return $randomWord;
+    }
+
+    public static function paragraph(?int $wordsCount = null)
     {
         if ($wordsCount === null) {
             $wordsCount = rand(5, 50);
         }
+
+        $currentWordCountInSentence = 0;
+
         $punctuationsList = ["!", ".", "?", ",", ";"];
         $lengthPunctationsList = 4;
         $wordsList = [
@@ -385,24 +472,28 @@ class Random
         ];
         $lengthWordsList = 274;
 
-        $sentence = "";
+        $paragraph = "";
         $hasPrevPunctation = false;
         $needsUppercase = true;
-        for ($i = 0; $i < $wordsCount; $i++) {
 
-            if($i != 0 && $i < $wordsCount){
-                $sentence .= " ";
+        for ($i = 0; $i < $wordsCount; $i++) {
+            $currentWordCountInSentence++;
+            $hasPrevPunctation = false;
+
+            if ($i != 0 && $i < $wordsCount) {
+                $paragraph .= " ";
             }
 
             $randWord = $wordsList[rand(0, $lengthWordsList)];
             if ($needsUppercase) {
-                $sentence .= ucfirst($randWord);
+                $paragraph .= ucfirst($randWord);
                 $needsUppercase = false;
             } else {
-                $sentence .= $randWord;
+                $paragraph .= $randWord;
             }
 
-            if (rand(0, 5) == 5) {
+            if ((rand(0, 10) == 5 && $currentWordCountInSentence >= 3) || $currentWordCountInSentence == 15) {
+                $currentWordCountInSentence = 0;
                 $randPunctuation = $punctuationsList[rand(0, $lengthPunctationsList)];
                 $hasPrevPunctation = true;
 
@@ -410,14 +501,12 @@ class Random
                     $needsUppercase = true;
                 }
 
-                $sentence .= $randPunctuation;
+                $paragraph .= $randPunctuation;
             }
-
-            
         }
-        if($hasPrevPunctation)
-            $sentence = substr($sentence, 0, -1);
-            
-        return $sentence . ". \n\r";
+        if ($hasPrevPunctation)
+            $paragraph = substr($paragraph, 0, -1);
+
+        return $paragraph . ". \n\r";
     }
 }
