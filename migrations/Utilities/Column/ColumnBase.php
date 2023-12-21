@@ -32,6 +32,7 @@ class ColumnBase implements ColumnBaseInterface{
     public ?string $default = null;
 
     public ?string $newName = null;
+    public ?string $tableName = null;
 
 
     public function __construct(public string $name)

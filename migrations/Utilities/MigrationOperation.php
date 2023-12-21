@@ -2,7 +2,7 @@
 
 namespace Migrations\Utilities;
 
-use Exception;
+
 use App\Database\Database;
 use Migrations\Utilities\Schema;
 
@@ -22,6 +22,11 @@ class MigrationOperation
 
     public function status()
     {
+        if($this->MIGRATIONS_FILES == []){
+            $this->colorLog("No migrations files found.");
+            return;
+        }
+
         foreach ($this->MIGRATIONS_FILES as $migrationFile) {
             $migrationFileWithoutExtension =  str_replace(".php", "", $migrationFile);
             $creationDate = (int)substr($migrationFileWithoutExtension, 10, 14);

@@ -91,7 +91,7 @@ abstract class Migration
     private function updateTable(Table $table, Instruction $instruction)
     {
         foreach ($table->columns as $column) {
-            
+            $column->tableName = "_" . $table->name;
             if ($column instanceof ColumnUpdateInterface) {
 
                 if ($column->cascadeOnDelete || $column->cascadeOnUpdate) {
@@ -161,7 +161,7 @@ abstract class Migration
     private function addPrimaryConstraint(ColumnBase $column, Instruction $instruction)
     {
         if ($column->primaryKeyConstraint != null) {
-            $instruction->setConstraint("ADD CONSTRAINT " . $column->primaryKeyConstraint . " PRIMARY KEY(" . $column->name . ")");
+            $instruction->setConstraint("ADD CONSTRAINT " . $column->primaryKeyConstraint . $column->tableName . " PRIMARY KEY(" . $column->name . ")");
         }
     }
 
@@ -170,7 +170,7 @@ abstract class Migration
         if ($column->foreignKeyConstraint != null) {
             $instruction->setConstraint(
                 "ADD CONSTRAINT " .
-                    $column->foreignKeyConstraint .
+                    $column->foreignKeyConstraint . $column->tableName .
                     " FOREIGN KEY(" . $column->name . ") REFERENCES " . $column->foreignKeyTableReference . "(" . $column->foreignKeyColumnReference . ")" .
                     ($column->cascadeOnDelete ? " ON DELETE CASCADE" : "") .
                     ($column->cascadeOnUpdate ? " ON UPDATE CASCADE" : "")
@@ -180,23 +180,23 @@ abstract class Migration
 
     private function addUniqueConstraint(ColumnBase $column, Instruction $instruction){
         if($column->uniqueConstraint != null){
-            $instruction->setConstraint("ADD CONSTRAINT " . $column->uniqueConstraint . " UNIQUE (" . $column->name . ")");
+            $instruction->setConstraint("ADD CONSTRAINT " . $column->uniqueConstraint . $column->tableName . " UNIQUE (" . $column->name . ")");
         }
     }
 
     private function dropConstraint(ColumnBase $column, Instruction $instruction)
     {
         if ($column->dropPk) {
-            $instruction->setConstraintToRemove("DROP CONSTRAINT " . $column->primaryKeyConstraint);
+            $instruction->setConstraintToRemove("DROP CONSTRAINT " . $column->primaryKeyConstraint . $column->tableName);
             $column->primaryKeyConstraint = null;
         }
         if ($column->dropFk) {
-            $instruction->setConstraintToRemove("DROP CONSTRAINT " . $column->foreignKeyConstraint);
+            $instruction->setConstraintToRemove("DROP CONSTRAINT " . $column->foreignKeyConstraint . $column->tableName);
             $column->foreignKeyConstraint = null;
         }
 
         if ($column->dropUnique) {
-            $instruction->setConstraintToRemove("DROP CONSTRAINT " . $column->uniqueConstraint);
+            $instruction->setConstraintToRemove("DROP CONSTRAINT " . $column->uniqueConstraint . $column->tableName);
             $column->uniqueConstraint = null;
         }
     }
@@ -227,6 +227,7 @@ abstract class Migration
     private function createTable(Table $table, Instruction $instruction)
     {
         foreach ($table->columns as $column) {
+            $column->tableName = "_" . $table->name;
             switch ($column->type) {
                 case ColumnType::$smallint:
                 case ColumnType::$int:
@@ -276,7 +277,7 @@ abstract class Migration
                     return $column->name . " BIGSERIAL";
                     break;
                 default:
-                    throw new Exception("Default edge case");
+                    throw new Exception("Error it is not a smallint/int/bigint");
                     break;
             }
         } else {
@@ -297,12 +298,12 @@ abstract class Migration
     private function setConstraint(ColumnBase $column, Instruction $instruction)
     {
         if ($column->primaryKeyConstraint != null) {
-            $instruction->setConstraint("CONSTRAINT " . $column->primaryKeyConstraint . " PRIMARY KEY(" . $column->name . ")");
+            $instruction->setConstraint("CONSTRAINT " . $column->primaryKeyConstraint . $column->tableName . " PRIMARY KEY(" . $column->name . ")");
         }
 
         if ($column->foreignKeyConstraint != null) {
             $instruction->setConstraint(
-                "CONSTRAINT " . $column->foreignKeyConstraint .
+                "CONSTRAINT " . $column->foreignKeyConstraint . $column->tableName .
                     " FOREIGN KEY(" . $column->name . ")" .
                     " REFERENCES " . $column->foreignKeyTableReference . "(" . $column->foreignKeyColumnReference . ")" .
                     ($column->cascadeOnDelete ? " ON DELETE CASCADE" : "") .
@@ -311,7 +312,7 @@ abstract class Migration
         }
 
         if ($column->uniqueConstraint != null) {
-            $instruction->setConstraint("CONSTRAINT " . $column->uniqueConstraint . " UNIQUE (" . $column->name . ")");
+            $instruction->setConstraint("CONSTRAINT " . $column->uniqueConstraint . $column->tableName . " UNIQUE (" . $column->name . ")");
         }
     }
 

@@ -19,7 +19,7 @@ if($connectionToUse != null){
 }
 
 require(__DIR__ . "/../../vendor/autoload.php");
-define("CONNECTION", $connectionToUse ?? "default");
+define("CONNECTION", "default");
 
 $db = new Database(
     Config::$conn[CONNECTION]["host"],
